@@ -1,5 +1,5 @@
 module XMLTypes where 
-
+ 
 data SimpleXML =                                             
          PCDATA  String                                                     
        | Element ElementName [SimpleXML]
