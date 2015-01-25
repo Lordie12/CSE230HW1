@@ -29,35 +29,6 @@ PartnerSID  : A53053857
 > mySID   = "A53041395"
 
 
-Preliminaries
--------------
-
-Before starting this assignment:
-
-* Download and install the [Haskell Platform](http://www.haskell.org/platform/).
-* Download the [SOE code bundle](/static/SOE-cse230.tgz).
-
-* Verify that it works by changing into the `SOE/src` directory and
-   running `ghci Draw.lhs`, then typing `main0` at the prompt:
- 
-~~~
-cd SOE/src
-ghci Draw.lhs
-*Draw> main0
-~~~
-
-  You should see a window with some shapes in it.
-
-**NOTE:** If you have trouble installing SOE, [see this page](soe-instructions.html)
-
-5. Download the required files for this assignment: [hw1.tar.gz](/static/hw1.tar.gz).
-   Unpack the files and make sure that you can successfully run the main program (in `Main.hs`).
-   We've provided a `Makefile`, which you can use if you like. You should see this output:
-
-~~~
-Main: Define me!
-~~~
-
 Part 1: Defining and Manipulating Shapes
 ----------------------------------------
 
@@ -201,7 +172,7 @@ Also, the organization of SOE has changed a bit, so that now you use
 > myFractal :: IO ()
 > myFractal = runGraphics (
 >		do w <- openWindow "Tree Fractal" (500, 500)	
->		   treeFract w 270 380 120 90
+>		   treeFract w 270 380 100 90
 >		   k <- getKey w
 >		   closeWindow w  
 >	      )
@@ -309,19 +280,23 @@ Now, a few functions for this `Tree` type.
 So: `fringe (Branch (Leaf 1) (Leaf 2))` should return `[1,2]`
 
 > fringe :: Tree a -> [a]
-> fringe = error "Define me!"
+> fringe a = 
+>	case a of Leaf a     -> [a]
+> 	 	  Branch b c -> fringe(b) ++ fringe(c)
 
 `treeSize` should return the number of leaves in the tree. 
 So: `treeSize (Branch (Leaf 1) (Leaf 2))` should return `2`.
 
 > treeSize :: Tree a -> Int
-> treeSize = error "Define me!"
+> treeSize a = length (fringe a) 
 
 `treeSize` should return the height of the tree.
 So: `height (Branch (Leaf 1) (Leaf 2))` should return `1`.
 
 > treeHeight :: Tree a -> Int
-> treeHeight = error "Define me!"
+> treeHeight a =
+>	case a of Leaf a     -> 0
+>		  Branch b c -> 1 + (max (treeHeight b) (treeHeight c))
 
 Now, a tree where the values live at the nodes not the leaf.
 
@@ -333,16 +308,18 @@ So `takeTree 1 (IBranch 1 (IBranch 2 ILeaf ILeaf) (IBranch 3 ILeaf ILeaf)))`
 should return `IBranch 1 ILeaf ILeaf`.
 
 > takeTree :: Int -> InternalTree a -> InternalTree a
-> takeTree = error "Define me!"
+> takeTree 0 t                 = ILeaf
+> takeTree n ILeaf             = ILeaf
+> takeTree n (IBranch t t1 t2) = IBranch t (takeTree (n - 1) t1) (takeTree (n - 1) t2) 
 
 `takeTreeWhile p t` should cut of the tree at the nodes that don't satisfy `p`.
 So: `takeTreeWhile (< 3) (IBranch 1 (IBranch 2 ILeaf ILeaf) (IBranch 3 ILeaf ILeaf)))`
 should return `(IBranch 1 (IBranch 2 ILeaf ILeaf) ILeaf)`.
 
 > takeTreeWhile :: (a -> Bool) -> InternalTree a -> InternalTree a
-> takeTreeWhile f ILeaf = ILeaf
-> takeTreeWhile f (IBranch k t1 t2) = if (f a)
->					then IBranch k (takeTreeWhile f t1) (takeTreeWhile f t2)
+> takeTreeWhile p ILeaf             = ILeaf
+> takeTreeWhile p (IBranch t t1 t2) = if (p t)
+>					then IBranch t (takeTreeWhile p t1) (takeTreeWhile p t2)
 >				      else ILeaf
  
 Write the function map in terms of foldr:

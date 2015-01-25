@@ -18,4 +18,8 @@ main = do --H.sierpinskiCarpet
 	  putStrLn(printf "minListNonRecursive     [-1, 2, 10, 4, 5, -4]      : %s" (show (H.minListNonRecursive [-1, 2, 10, 4, 5, -4])))
 	  putStrLn(printf "maxList                 [-1, 2, 10, 4, 5, -4]      : %s" (show (H.maxList [-1, 2, 10, 4, 5, -4])))
           putStrLn(printf "maxListNonRecursive     [-1, 2, 10, 4, 5, -4]      : %s" (show (H.maxListNonRecursive [-1, 2, 10, 4, 5, -4])))
+	  putStrLn(printf "fringe     (Branch (Leaf 1) (Leaf 2))              : %s" (show (H.fringe (H.Branch (H.Leaf 1) (H.Leaf 2)))))
+	  putStrLn(printf "treeSize   (Branch (Leaf 1) (Leaf 2))              : %s" (show (H.treeSize (H.Branch (H.Leaf 1) (H.Leaf 2)))))
+	  putStrLn(printf "treeHeight (Branch (Leaf 1) (Leaf 2))              : %s" (show (H.treeHeight (H.Branch (H.Leaf 1) (H.Leaf 2)) )))
+	  putStrLn(printf "myMap (\\x -> x + 2)    [1, 2, 3]                  : %s" (show (H.myMap (\x -> x + 2) [1, 2, 3])))
 	  --H.mainXML
