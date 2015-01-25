@@ -20,6 +20,10 @@ Part 0: All About You
 Tell us your name, email and student ID, by replacing the respective
 strings below
 
+PartnerName : Aditya Avinash
+PartnerEmail: aavinash@eng.ucsd.edu
+PartnerSID  : A53053857
+
 > myName  = "Kaushik Kalyanaraman"
 > myEmail = "kkalyana@eng.ucsd.edu"
 > mySID   = "A53041395"
@@ -122,11 +126,16 @@ The following are the definitions of shapes:
    Write a function
    
 > hanoi :: Int -> String -> String -> String -> IO ()
-> hanoi 1 a b c = putStrLn(printf "move disc from %s to %s" a b)
-> hanoi n a b c = do
->			hanoi (n - 1) a c b
+> hanoi k a b c = 
+>	if k == 1 
+>		then putStrLn(printf "move disc from %s to %s" a b)
+>	else if k > 1 
+>		then do 
+>			hanoi (k - 1) a c b
 >			hanoi 1 a b c
->			hanoi (n - 1) c b a
+>			hanoi (k - 1) c b a
+>	else
+>			putStrLn("incorrect number of discs")
 
   that, given the number of discs $n$ and peg names $a$, $b$, and $c$,
   where a is the starting peg,
@@ -190,7 +199,29 @@ Also, the organization of SOE has changed a bit, so that now you use
    pattern of recursive self-similarity.
 
 > myFractal :: IO ()
-> myFractal = error "Define me!"
+> myFractal = runGraphics (
+>		do w <- openWindow "Tree Fractal" (500, 500)	
+>		   treeFract w 270 380 120 90
+>		   k <- getKey w
+>		   closeWindow w  
+>	      )
+
+> drawLine :: Window -> Float -> Float -> Float -> Float -> IO()
+> drawLine w x0 y0 x1 y1 
+>	= drawInWindow w (withColor Green (line (floor x0, floor y0) (floor x1, floor y1)))  
+
+> minLen :: Float
+> minLen = 2
+> treeFract :: Window -> Float -> Float -> Float -> Float -> IO ()
+> treeFract w x y len angle = 
+>	if len >= minLen
+>	then do 
+>		let x1 = x + len * cos(angle)
+>		let y1 = y - len * sin(angle)
+>		drawLine w x y x1 y1
+>		treeFract w x1 y1 (len * 0.75) (angle + 30)
+>		treeFract w x1 y1 (len * 0.66) (angle - 50)
+>	else return () 
 
 Part 3: Recursion Etc.
 ----------------------
@@ -203,33 +234,36 @@ they are passed contain at least one element.)
 Write a *non-recursive* function to compute the length of a list
 
 > lengthNonRecursive :: [a] -> Int
-> lengthNonRecursive = error "Define me!"
+> lengthNonRecursive = foldl (\n _ -> n + 1) 0
 
 `doubleEach [1,20,300,4000]` should return `[2,40,600,8000]`
 
 > doubleEach :: [Int] -> [Int]
-> doubleEach = error "Define me!"
+> doubleEach [] = []
+> doubleEach (x : xs) = (2 * x) : doubleEach xs
 
 Now write a *non-recursive* version of the above.
 
 > doubleEachNonRecursive :: [Int] -> [Int]
-> doubleEachNonRecursive = error "Define me!"
+> doubleEachNonRecursive = map (* 2)
 
 `pairAndOne [1,20,300]` should return `[(1,2), (20,21), (300,301)]`
 
 > pairAndOne :: [Int] -> [(Int, Int)]
-> pairAndOne = error "Define me!"
+> pairAndOne [] = []
+> pairAndOne (x : xs) = (x, x + 1) : pairAndOne xs
 
 
 Now write a *non-recursive* version of the above.
 
 > pairAndOneNonRecursive :: [Int] -> [(Int, Int)]
-> pairAndOneNonRecursive = error "Define me!"
+> pairAndOneNonRecursive = map (\x -> (x, x + 1))
 
 `addEachPair [(1,2), (20,21), (300,301)]` should return `[3,41,601]`
 
 > addEachPair :: [(Int, Int)] -> [Int]
-> addEachPair = error "Define me!" 
+> addEachPair [] = []
+> addEachPair ((x, y) : xs) = (x + y) : addEachPair xs
 
 Now write a *non-recursive* version of the above.
 
