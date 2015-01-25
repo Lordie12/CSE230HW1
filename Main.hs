@@ -6,7 +6,10 @@ import Text.Printf
 main :: IO ()
 main = do --H.sierpinskiCarpet
           --H.myFractal
-	  --H.hanoi 2 "a" "b" "c"
+	  putStrLn(printf "Rectangle sides                                    : %d" (H.sides (H.Rectangle 5 6)))
+	  putStrLn(printf "Ellipse sides                                      : %d" (H.sides (H.Ellipse 5 6)))
+	  putStrLn(printf "RtTriangle sides                                   : %d" (H.sides (H.RtTriangle 6 10)))
+	  H.hanoi 2 "a" "b" "c"
 	  putStrLn(printf "lengthNonRecursive      [1, 2, 3]                  : %d" (H.lengthNonRecursive [1, 2, 3]))
 	  putStrLn(printf "doubleEach              [1, 2, 3]                  : %s" (show (H.doubleEach [1, 2, 3])))
 	  putStrLn(printf "doubleEachNonRecursive  [1, 2, 3]                  : %s" (show (H.doubleEachNonRecursive [1, 2, 3])))

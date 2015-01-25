@@ -61,10 +61,11 @@ The following are the definitions of shapes:
 2. Define a function
 
 > sides :: Shape -> Int
-> sides (Rectangle _ _)  = 4
-> sides (Ellipse _ _)    = 42
-> sides (RtTriangle _ _) = 3
-> sides (Polygon v)      = if (length v) > 2 then (length v) else 0 
+> sides s = 
+>	case s of (Rectangle _ _)  -> 4
+>		  (Ellipse _ _)    -> 42
+>		  (RtTriangle _ _) -> 3
+>		  (Polygon v)      -> if (length v) > 2 then (length v) else 0 
 
   which returns the number of sides a given shape has.
   For the purposes of this exercise, an ellipse has 42 sides,
@@ -73,10 +74,12 @@ The following are the definitions of shapes:
 3. Define a function
 
 > bigger :: Shape -> Float -> Shape
-> bigger (Rectangle x y) e  = Rectangle (x * double2Float (sqrt (float2Double e))) (y * double2Float (sqrt (float2Double e))) 
-> bigger (RtTriangle x y) e = RtTriangle (x * double2Float (sqrt (float2Double e))) (y * double2Float (sqrt (float2Double e)))
-> bigger (Ellipse x y) e    = Ellipse (x * double2Float (sqrt (float2Double e))) (y * double2Float (sqrt (float2Double e)))
-> bigger (Polygon v) e      = Polygon v
+> bigger sh e =
+>	case sh of Rectangle x y  -> Rectangle  (f * x) (f * y)
+>		   RtTriangle x y -> RtTriangle (f * x) (f * y)
+>		   Ellipse x y    -> Ellipse    (f * x) (f * y)
+>		   Polygon v      -> Polygon (map (\(a,b) -> ((f * a), (f * b))) v)
+>		   where f = double2Float (sqrt (float2Double e))
 
   that takes a shape `s` and expansion factor `e` and returns
   a shape which is the same as (i.e., similar to in the geometric sense)
@@ -210,8 +213,9 @@ Write a *non-recursive* function to compute the length of a list
 `doubleEach [1,20,300,4000]` should return `[2,40,600,8000]`
 
 > doubleEach :: [Int] -> [Int]
-> doubleEach [] = []
-> doubleEach (x : xs) = (2 * x) : doubleEach xs
+> doubleEach l = 
+>	case l of []       -> []
+>		  (x : xs) -> (2 * x) : doubleEach xs
 
 Now write a *non-recursive* version of the above.
 
@@ -221,8 +225,9 @@ Now write a *non-recursive* version of the above.
 `pairAndOne [1,20,300]` should return `[(1,2), (20,21), (300,301)]`
 
 > pairAndOne :: [Int] -> [(Int, Int)]
-> pairAndOne [] = []
-> pairAndOne (x : xs) = (x, x + 1) : pairAndOne xs
+> pairAndOne l = 
+>	case l of []       -> []
+>		  (x : xs) -> (x, x + 1) : pairAndOne xs
 
 
 Now write a *non-recursive* version of the above.
@@ -233,8 +238,9 @@ Now write a *non-recursive* version of the above.
 `addEachPair [(1,2), (20,21), (300,301)]` should return `[3,41,601]`
 
 > addEachPair :: [(Int, Int)] -> [Int]
-> addEachPair [] = []
-> addEachPair ((x, y) : xs) = (x + y) : addEachPair xs
+> addEachPair l = 
+>	case l of []            -> []
+>		  ((x, y) : xs) -> (x + y) : addEachPair xs
 
 Now write a *non-recursive* version of the above.
 
@@ -245,31 +251,35 @@ Now write a *non-recursive* version of the above.
 input list is *non-empty*.
 
 > minList :: [Int] -> Int
-> minList [] = error "List is empty!!"
-> minList [x] = x
-> minList (x : xs) = min x (minList xs)
+> minList l = 
+> 	case l of []       -> error "List is empty!!"
+> 		  [x]      -> x
+> 		  (x : xs) -> min x (minList xs)
 
 Now write a *non-recursive* version of the above.
 
 > minListNonRecursive :: [Int] -> Int
-> minListNonRecursive [] = error "List is empty!!"
-> minListNonRecursive [x] = x
-> minListNonRecursive (x : xs) = foldl min x xs
+> minListNonRecursive l = 
+> 	case l of []       -> error "List is empty!!"
+>  		  [x]      -> x
+>		  (x : xs) -> foldl min x xs
 
 `maxList` should return the *largest* value in the list. You may assume the
 input list is *non-empty*.
 
 > maxList :: [Int] -> Int
-> maxList [] = error "List is empty!!"
-> maxList [x] = x
-> maxList (x : xs) = max x (maxList xs)
+> maxList l = 
+>	case l of [] 	   -> error "List is empty!!"
+> 		  [x]      -> x
+> 		  (x : xs) -> max x (maxList xs)
 
 Now write a *non-recursive* version of the above.
 
 > maxListNonRecursive :: [Int] -> Int
-> maxListNonRecursive [] = error "List is empty!!"
-> maxListNonRecursive [x] = x
-> maxListNonRecursive (x : xs) = foldl max x xs
+> maxListNonRecursive l = 
+>	case l of []       -> error "List is empty!!"
+>  		  [x]      -> x
+> 		  (x : xs) -> foldl max x xs
 
 Now, a few functions for this `Tree` type.
 
