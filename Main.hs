@@ -4,8 +4,8 @@ import qualified Hw1 as H
 import Text.Printf
 
 main :: IO ()
-main = do --H.sierpinskiCarpet
-          --H.myFractal
+main = do H.sierpinskiCarpet
+          H.myFractal
 	  putStrLn(printf "Rectangle sides                                    : %d" (H.sides (H.Rectangle 5 6)))
 	  putStrLn(printf "Ellipse sides                                      : %d" (H.sides (H.Ellipse 5 6)))
 	  putStrLn(printf "RtTriangle sides                                   : %d" (H.sides (H.RtTriangle 6 10)))
@@ -25,4 +25,4 @@ main = do --H.sierpinskiCarpet
 	  putStrLn(printf "treeSize   (Branch (Leaf 1) (Leaf 2))              : %s" (show (H.treeSize (H.Branch (H.Leaf 1) (H.Leaf 2)))))
 	  putStrLn(printf "treeHeight (Branch (Leaf 1) (Leaf 2))              : %s" (show (H.treeHeight (H.Branch (H.Leaf 1) (H.Leaf 2)) )))
 	  putStrLn(printf "myMap (\\x -> x + 2)    [1, 2, 3]                  : %s" (show (H.myMap (\x -> x + 2) [1, 2, 3])))
-	  --H.mainXML
+	  H.mainXML

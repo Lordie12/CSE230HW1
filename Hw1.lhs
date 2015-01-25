@@ -426,8 +426,25 @@ representing a play to another XML structure that, when printed,
 yields the HTML speciﬁed above (but with no whitespace except what's
 in the textual data in the original XML).
 
+> fSpeech :: SimpleXML -> SimpleXML
+> fSpeech elt = 
+> 	case elt of (Element "SPEAKER" speaker) -> (Element "b" speaker)
+>		    (Element "LINE" [line])     -> line
+
+> fPersona :: SimpleXML -> SimpleXML
+> fPersona (Element "PERSONA" [persona]) = persona 
+
+> fPlay :: (Int, SimpleXML) -> [SimpleXML]
+> fPlay elt = 
+>	case elt of ((level, Element "TITLE" title))       -> [Element ("h" ++ (show level)) title]
+>		    ((_,     Element "PERSONAE" personae)) -> (Element "h2" [(PCDATA "Dramatis Personae")]) : (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map fPersona personae))
+>		    ((level, Element "ACT" act))           -> (foldr (\xml html -> (fPlay (level + 1, xml)) ++ html) [] act)
+>		    ((level, Element "SCENE" scene))       -> (foldr (\xml html -> (fPlay (level + 1, xml)) ++ html) [] scene)
+>		    ((_,     Element "SPEECH" speech))     -> (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map fSpeech speech))
+>		    ((_,     elt)) 			   -> [elt]
+
 > formatPlay :: SimpleXML -> SimpleXML
-> formatPlay xml = PCDATA "WRITE ME!"
+> formatPlay (Element "PLAY" oxml) = Element "html" [Element "body" (foldr (\xml html -> (fPlay (1, xml)) ++ html) [] oxml)]
 
 The main action that we've provided below will use your function to
 generate a ﬁle `dream.html` from the sample play. The contents of this
