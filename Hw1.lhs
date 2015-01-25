@@ -268,29 +268,37 @@ Now write a *non-recursive* version of the above.
 Now write a *non-recursive* version of the above.
 
 > addEachPairNonRecursive :: [(Int, Int)] -> [Int]
-> addEachPairNonRecursive = error "Define me!" 
+> addEachPairNonRecursive = map (\(x, y) -> (x + y))
 
 `minList` should return the *smallest* value in the list. You may assume the
 input list is *non-empty*.
 
 > minList :: [Int] -> Int
-> minList = error "Define me!"
+> minList [] = error "List is empty!!"
+> minList [x] = x
+> minList (x : xs) = min x (minList xs)
 
 Now write a *non-recursive* version of the above.
 
 > minListNonRecursive :: [Int] -> Int
-> minListNonRecursive = error "Define me!"
+> minListNonRecursive [] = error "List is empty!!"
+> minListNonRecursive [x] = x
+> minListNonRecursive (x : xs) = foldl min x xs
 
 `maxList` should return the *largest* value in the list. You may assume the
 input list is *non-empty*.
 
 > maxList :: [Int] -> Int
-> maxList = error "Define me!"
+> maxList [] = error "List is empty!!"
+> maxList [x] = x
+> maxList (x : xs) = max x (maxList xs)
 
 Now write a *non-recursive* version of the above.
 
 > maxListNonRecursive :: [Int] -> Int
-> maxListNonRecursive = error "Define me!"
+> maxListNonRecursive [] = error "List is empty!!"
+> maxListNonRecursive [x] = x
+> maxListNonRecursive (x : xs) = foldl max x xs
 
 Now, a few functions for this `Tree` type.
 
@@ -332,12 +340,15 @@ So: `takeTreeWhile (< 3) (IBranch 1 (IBranch 2 ILeaf ILeaf) (IBranch 3 ILeaf ILe
 should return `(IBranch 1 (IBranch 2 ILeaf ILeaf) ILeaf)`.
 
 > takeTreeWhile :: (a -> Bool) -> InternalTree a -> InternalTree a
-> takeTreeWhile = error "Define me!"
+> takeTreeWhile f ILeaf = ILeaf
+> takeTreeWhile f (IBranch k t1 t2) = if (f a)
+>					then IBranch k (takeTreeWhile f t1) (takeTreeWhile f t2)
+>				      else ILeaf
  
 Write the function map in terms of foldr:
 
 > myMap :: (a -> b) -> [a] -> [b]
-> myMap = error "Define me!"
+> myMap m = foldr (\x a -> (m x) : a) []
 
 Part 4: Transforming XML Documents
 ----------------------------------
