@@ -1,5 +1,5 @@
 ---
-title: Homework #1, Due Friday, 1/31/14
+title: Homework #1, Due Monday, 1/26/15
 ---
 
 Haskell Formalities
@@ -75,10 +75,10 @@ The following are the definitions of shapes:
 
 > bigger :: Shape -> Float -> Shape
 > bigger sh e =
->	case sh of Rectangle x y  -> Rectangle  (f * x) (f * y)
->		   RtTriangle x y -> RtTriangle (f * x) (f * y)
->		   Ellipse x y    -> Ellipse    (f * x) (f * y)
->		   Polygon v      -> Polygon (map (\(a,b) -> ((f * a), (f * b))) v)
+>	case sh of (Rectangle x y)  -> Rectangle  (f * x) (f * y)
+>		   (RtTriangle x y) -> RtTriangle (f * x) (f * y)
+>		   (Ellipse x y)    -> Ellipse    (f * x) (f * y)
+>		   (Polygon v)      -> Polygon    (map (\(a, b) -> ((f * a), (f * b))) v)
 >		   where f = double2Float (sqrt (float2Double e))
 
   that takes a shape `s` and expansion factor `e` and returns
@@ -426,10 +426,14 @@ representing a play to another XML structure that, when printed,
 yields the HTML speciﬁed above (but with no whitespace except what's
 in the textual data in the original XML).
 
+Helper function to extract line information / add "b" tag to the speakers given a SimpleXML Input
+
 > fSpeech :: SimpleXML -> SimpleXML
 > fSpeech elt = 
 > 	case elt of (Element "SPEAKER" speaker) -> (Element "b" speaker)
 >		    (Element "LINE" [line])     -> line
+
+Helper function to extract persona data given an input list of Element "PERSONA" [persona] type
 
 > fPersona :: SimpleXML -> SimpleXML
 > fPersona (Element "PERSONA" [persona]) = persona 
@@ -442,6 +446,8 @@ in the textual data in the original XML).
 >		    ((level, Element "SCENE" scene))       -> (foldr (\xml html -> (fPlay (level + 1, xml)) ++ html) [] scene)
 >		    ((_,     Element "SPEECH" speech))     -> (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map fSpeech speech))
 >		    ((_,     elt)) 			   -> [elt]
+
+We start the execution from level 1 (fPlay (1, xml))
 
 > formatPlay :: SimpleXML -> SimpleXML
 > formatPlay (Element "PLAY" oxml) = Element "html" [Element "body" (foldr (\xml html -> (fPlay (1, xml)) ++ html) [] oxml)]
