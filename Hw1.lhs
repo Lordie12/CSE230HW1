@@ -53,10 +53,10 @@ The following are the definitions of shapes:
    built with the Polygon constructor.
 
 > rectangle :: Side -> Side -> Shape
-> rectangle x y  = Rectangle x y
+> rectangle s1 s2  = Polygon [(0, 0), (s1, 0), (s1, s2), (0, s2)]  
 
 > rtTriangle :: Side -> Side -> Shape
-> rtTriangle x y = RtTriangle x y 
+> rtTriangle s1 s2 = Polygon [(0, 0), (s1, 0), (0, s2)]
 
 2. Define a function
 
@@ -135,8 +135,8 @@ Part 2: Drawing Fractals
 Write a function `sierpinskiCarpet` that displays this figure on the
 screen:
 
-> fillRect :: Window -> Int -> Int -> Int -> IO ()
-> fillRect w x y size 
+> drawRect :: Window -> Int -> Int -> Int -> IO ()
+> drawRect w x y size 
 >	=  drawInWindow w (withColor Green (polygon [(x, y), (x + size, y), (x + size, y + size), (x, y + size), (x, y)]))
 >
 > sierpinskiCarpet :: IO ()
@@ -152,7 +152,7 @@ screen:
 > sierpinskiRect :: Window -> Int -> Int -> Int -> IO ()
 > sierpinskiRect w x y size = 
 >	if size <= minSize
->	then fillRect w x y size
+>	then drawRect w x y size
 >	else let size2 = size `div` 3
 >	  in do	sierpinskiRect w x               y               size2
 >               sierpinskiRect w (x + size2)     y               size2
@@ -184,17 +184,17 @@ Also, the organization of SOE has changed a bit, so that now you use
 > drawLine w x0 y0 x1 y1 
 >	= drawInWindow w (withColor Green (line (floor x0, floor y0) (floor x1, floor y1)))  
 
-> minLen :: Float
-> minLen = 2
+Credits: Algorithm for drawing tree fractals taken from http://natureofcode.com/book/chapter-8-fractals/
+
 > treeFract :: Window -> Float -> Float -> Float -> Float -> IO ()
 > treeFract w x0 y0 len angle = 
->	if len >= minLen
+>	if len >= 1
 >	then do 
 >		let x1 = x0 + len * cos(angle)
 >		let y1 = y0 - len * sin(angle)
 >		drawLine w x0 y0 x1 y1
->		treeFract w x1 y1 (len * 0.75) (angle + 30)
->		treeFract w x1 y1 (len * 0.66) (angle - 50)
+>		treeFract w x1 y1 (len * 0.75) (angle + 25)
+>		treeFract w x1 y1 (len * 0.60) (angle - 48)
 >	else return () 
 
 Part 3: Recursion Etc.
@@ -291,7 +291,7 @@ So: `fringe (Branch (Leaf 1) (Leaf 2))` should return `[1,2]`
 
 > fringe :: Tree a -> [a]
 > fringe a = 
->	case a of Leaf a       -> [a]
+>	case a of Leaf l       -> [l]
 > 	 	  Branch b1 b2 -> fringe(b1) ++ fringe(b2)
 
 `treeSize` should return the number of leaves in the tree. 
@@ -335,7 +335,7 @@ should return `(IBranch 1 (IBranch 2 ILeaf ILeaf) ILeaf)`.
 Write the function map in terms of foldr:
 
 > myMap :: (a -> b) -> [a] -> [b]
-> myMap f = foldr (\x a -> (f x) : a) []
+> myMap f = foldr (\x k -> (f x) : k) []
 
 Part 4: Transforming XML Documents
 ----------------------------------
@@ -432,11 +432,14 @@ Helper function to extract line information / add "b" tag to the speakers given 
 > getS elt = 
 > 	case elt of (Element "SPEAKER" speaker) -> (Element "b" speaker)
 >		    (Element "LINE" [line])     -> line
+>		    (_) 			-> error "Undefined XML!!"
 
 Helper function to extract persona data given an input list of Element "PERSONA" [persona] type
 
 > getP :: SimpleXML -> SimpleXML
-> getP (Element "PERSONA" [persona]) = persona 
+> getP elt = 
+>	case elt of (Element "PERSONA" [persona]) -> persona 
+>		    (_)				  -> error "Undefined XML!!"
 
 > fPlay :: (Int, SimpleXML) -> [SimpleXML]
 > fPlay elt = 
