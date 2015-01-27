@@ -78,7 +78,7 @@ The following are the definitions of shapes:
 >	case sh of (Rectangle x y)  -> Rectangle  (f * x) (f * y)
 >		   (RtTriangle x y) -> RtTriangle (f * x) (f * y)
 >		   (Ellipse x y)    -> Ellipse    (f * x) (f * y)
->		   (Polygon v)      -> Polygon    (map (\(a, b) -> ((f * a), (f * b))) v)
+>		   (Polygon v)      -> Polygon    (map (\(v1, v2) -> ((f * v1), (f * v2))) v)
 >		   where f = double2Float (sqrt (float2Double e))
 
   that takes a shape `s` and expansion factor `e` and returns
@@ -154,13 +154,13 @@ screen:
 >	if size <= minSize
 >	then fillRect w x y size
 >	else let size2 = size `div` 3
->	  in do	sierpinskiRect w x y size2
->		sierpinskiRect w x (y + size2) size2
->              	sierpinskiRect w x (y + 2 * size2) size2
->               sierpinskiRect w (x + size2) y size2
->              	sierpinskiRect w (x + size2) (y + 2 * size2) size2
->               sierpinskiRect w (x + 2 * size2) y size2
->               sierpinskiRect w (x + 2 * size2) (y + size2) size2
+>	  in do	sierpinskiRect w x               y               size2
+>               sierpinskiRect w (x + size2)     y               size2
+>               sierpinskiRect w (x + 2 * size2) y               size2
+>		sierpinskiRect w x               (y + size2)     size2
+>               sierpinskiRect w (x + 2 * size2) (y + size2)     size2
+>              	sierpinskiRect w x               (y + 2 * size2) size2
+>              	sierpinskiRect w (x + size2)     (y + 2 * size2) size2
 >               sierpinskiRect w (x + 2 * size2) (y + 2 * size2) size2
 
 Note that you either need to run your program in `SOE/src` or add this
@@ -187,12 +187,12 @@ Also, the organization of SOE has changed a bit, so that now you use
 > minLen :: Float
 > minLen = 2
 > treeFract :: Window -> Float -> Float -> Float -> Float -> IO ()
-> treeFract w x y len angle = 
+> treeFract w x0 y0 len angle = 
 >	if len >= minLen
 >	then do 
->		let x1 = x + len * cos(angle)
->		let y1 = y - len * sin(angle)
->		drawLine w x y x1 y1
+>		let x1 = x0 + len * cos(angle)
+>		let y1 = y0 - len * sin(angle)
+>		drawLine w x0 y0 x1 y1
 >		treeFract w x1 y1 (len * 0.75) (angle + 30)
 >		treeFract w x1 y1 (len * 0.66) (angle - 50)
 >	else return () 
@@ -291,8 +291,8 @@ So: `fringe (Branch (Leaf 1) (Leaf 2))` should return `[1,2]`
 
 > fringe :: Tree a -> [a]
 > fringe a = 
->	case a of Leaf a     -> [a]
-> 	 	  Branch b c -> fringe(b) ++ fringe(c)
+>	case a of Leaf a       -> [a]
+> 	 	  Branch b1 b2 -> fringe(b1) ++ fringe(b2)
 
 `treeSize` should return the number of leaves in the tree. 
 So: `treeSize (Branch (Leaf 1) (Leaf 2))` should return `2`.
@@ -305,8 +305,8 @@ So: `height (Branch (Leaf 1) (Leaf 2))` should return `1`.
 
 > treeHeight :: Tree a -> Int
 > treeHeight a =
->	case a of Leaf a     -> 0
->		  Branch b c -> 1 + (max (treeHeight b) (treeHeight c))
+>	case a of Leaf a       -> 0
+>		  Branch b1 b2 -> 1 + (max (treeHeight b1) (treeHeight b2))
 
 Now, a tree where the values live at the nodes not the leaf.
 
@@ -320,7 +320,7 @@ should return `IBranch 1 ILeaf ILeaf`.
 > takeTree :: Int -> InternalTree a -> InternalTree a
 > takeTree 0 t                 = ILeaf
 > takeTree n ILeaf             = ILeaf
-> takeTree n (IBranch t t1 t2) = IBranch t (takeTree (n - 1) t1) (takeTree (n - 1) t2) 
+> takeTree n (IBranch t b1 b2) = IBranch t (takeTree (n - 1) b1) (takeTree (n - 1) b2) 
 
 `takeTreeWhile p t` should cut of the tree at the nodes that don't satisfy `p`.
 So: `takeTreeWhile (< 3) (IBranch 1 (IBranch 2 ILeaf ILeaf) (IBranch 3 ILeaf ILeaf)))`
@@ -328,14 +328,14 @@ should return `(IBranch 1 (IBranch 2 ILeaf ILeaf) ILeaf)`.
 
 > takeTreeWhile :: (a -> Bool) -> InternalTree a -> InternalTree a
 > takeTreeWhile p ILeaf             = ILeaf
-> takeTreeWhile p (IBranch t t1 t2) = if (p t)
->					then IBranch t (takeTreeWhile p t1) (takeTreeWhile p t2)
+> takeTreeWhile p (IBranch t b1 b2) = if (p t)
+>					then IBranch t (takeTreeWhile p b1) (takeTreeWhile p b2)
 >				      else ILeaf
  
 Write the function map in terms of foldr:
 
 > myMap :: (a -> b) -> [a] -> [b]
-> myMap m = foldr (\x a -> (m x) : a) []
+> myMap f = foldr (\x a -> (f x) : a) []
 
 Part 4: Transforming XML Documents
 ----------------------------------
@@ -428,23 +428,23 @@ in the textual data in the original XML).
 
 Helper function to extract line information / add "b" tag to the speakers given a SimpleXML Input
 
-> fSpeech :: SimpleXML -> SimpleXML
-> fSpeech elt = 
+> getS :: SimpleXML -> SimpleXML
+> getS elt = 
 > 	case elt of (Element "SPEAKER" speaker) -> (Element "b" speaker)
 >		    (Element "LINE" [line])     -> line
 
 Helper function to extract persona data given an input list of Element "PERSONA" [persona] type
 
-> fPersona :: SimpleXML -> SimpleXML
-> fPersona (Element "PERSONA" [persona]) = persona 
+> getP :: SimpleXML -> SimpleXML
+> getP (Element "PERSONA" [persona]) = persona 
 
 > fPlay :: (Int, SimpleXML) -> [SimpleXML]
 > fPlay elt = 
 >	case elt of ((level, Element "TITLE" title))       -> [Element ("h" ++ (show level)) title]
->		    ((_,     Element "PERSONAE" personae)) -> (Element "h2" [(PCDATA "Dramatis Personae")]) : (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map fPersona personae))
+>		    ((_,     Element "PERSONAE" personae)) -> (Element "h2" [(PCDATA "Dramatis Personae")]) : (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map getP personae))
 >		    ((level, Element "ACT" act))           -> (foldr (\xml html -> (fPlay (level + 1, xml)) ++ html) [] act)
 >		    ((level, Element "SCENE" scene))       -> (foldr (\xml html -> (fPlay (level + 1, xml)) ++ html) [] scene)
->		    ((_,     Element "SPEECH" speech))     -> (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map fSpeech speech))
+>		    ((_,     Element "SPEECH" speech))     -> (foldr (\xml html -> [xml, (Element "br" [])] ++ html) [] (map getS speech))
 >		    ((_,     elt)) 			   -> [elt]
 
 We start the execution from level 1 (fPlay (1, xml))
